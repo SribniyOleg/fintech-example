@@ -36,4 +36,10 @@ public class Company {
 
     private String url;
 
+    private double volume;
+
+    private double previousVolume;
+
+
+
 }
