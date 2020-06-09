@@ -26,11 +26,14 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String symbol;
-
+    @JsonProperty("companyName")
     private String name;
 
-    @JsonProperty("isEnabled")
-    private boolean state;
+    private String symbol;
+
+    @JsonProperty("latestPrice")
+    private Double price;
+
+    private String url;
 
 }
