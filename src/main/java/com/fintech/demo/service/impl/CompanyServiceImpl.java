@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -68,21 +69,24 @@ public class CompanyServiceImpl implements CompanyService {
         return CompletableFuture.completedFuture(company);
     }
 
-    @Override
     @Async
-    public CompletableFuture<Void> getTopCompanies() {
+    public void getTopCompanies() {
         List<Company> topByVolume = companyRepository.findTopByVolume();
         List<Company> topByPrice = companyRepository.findTopByPrice();
         log.info("Tom companies by volume");
-        for(Company c : topByVolume){
-            log.info(c.getName() + c.getPreviousVolume());
+        for (Company c : topByVolume) {
+            log.info("   -" + c.getName() + c.getPreviousVolume());
         }
 
         log.info("Tom companies by price");
-        for(Company c : topByPrice){
-            log.info(c.getName() + c.getPrice());
+        for (Company c : topByPrice) {
+            log.info("   -" + c.getName() + " "+ c.getPrice());
         }
-        return CompletableFuture.completedFuture(null);
+    }
+
+    @Scheduled(fixedDelay = 5000)
+    public void showTopCompanies() {
+        getTopCompanies();
     }
 
     public BlockingDeque<String> saveCompanyUrls(List<CompanyDto> companies) {

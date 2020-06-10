@@ -15,5 +15,4 @@ public interface CompanyService {
 
     CompletableFuture<Company> getCompanyFromRequest(String url);
 
-    CompletableFuture<Void> getTopCompanies();
 }

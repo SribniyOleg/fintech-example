@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.net.http.HttpClient;
@@ -13,6 +14,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 @Configuration
 @EnableAsync
+@EnableScheduling
 public class Config {
     @Bean
     public HttpClient httpClient() {
