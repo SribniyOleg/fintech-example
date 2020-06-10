@@ -6,13 +6,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CompanyRepository extends JpaRepository<Company, Long> {
 
-    @Query(value = "SELECT * from company order by previous_volume desc LIMIT 5" , nativeQuery = true)
+    @Query(value = "SELECT * from company order by volume desc LIMIT 5" , nativeQuery = true)
     List<Company> findTopByVolume();
 
     @Query(value = "SELECT * from company order by price desc LIMIT 5" , nativeQuery = true)
     List<Company> findTopByPrice();
+
+    Optional<Company> findByUrl(String url);
 }

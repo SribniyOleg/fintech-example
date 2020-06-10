@@ -1,42 +1,43 @@
 package com.fintech.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 @Entity
 @Data
 @Builder
-@EqualsAndHashCode(of = "id")
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Company {
+public class CompanyLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonProperty("companyName")
-    private String name;
+    private double oldVolume;
 
-    private String symbol;
+    private double newVolume;
 
-    @JsonProperty("latestPrice")
-    private double price;
+    private double oldPrice;
 
-    private String url;
+    private double newPrice;
 
-    @JsonProperty("previousVolume")
-    private double volume;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
 
 }

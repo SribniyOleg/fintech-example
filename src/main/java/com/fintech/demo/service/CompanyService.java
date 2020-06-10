@@ -13,6 +13,6 @@ public interface CompanyService {
 
     BlockingDeque<String> saveCompanyUrls(List<CompanyDto> companies);
 
-    CompletableFuture<Company> getCompanyFromRequest(String url);
+    CompletableFuture<Company> saveCompany(String url);
 
 }

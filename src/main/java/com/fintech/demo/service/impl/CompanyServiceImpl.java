@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fintech.demo.dto.CompanyDto;
 import com.fintech.demo.model.Company;
+import com.fintech.demo.model.CompanyLog;
+import com.fintech.demo.repository.CompanyLogRepository;
 import com.fintech.demo.repository.CompanyRepository;
 import com.fintech.demo.service.CompanyService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -36,6 +39,7 @@ public class CompanyServiceImpl implements CompanyService {
     private final ObjectMapper objectMapper;
     private final CompanyRepository companyRepository;
     private final BlockingDeque<String> urls;
+    private final CompanyLogRepository companyLogRepository;
 
 
     @SneakyThrows
@@ -56,7 +60,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @SneakyThrows
     @Async
-    public CompletableFuture<Company> getCompanyFromRequest(String url) {
+    public CompletableFuture<Company> saveCompany(String url) {
         HttpRequest request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(url))
@@ -65,7 +69,14 @@ public class CompanyServiceImpl implements CompanyService {
                 .thenApply(HttpResponse::body)
                 .join();
         Company company = objectMapper.readValue(companyJson, Company.class);
-        companyRepository.save(company);
+        Optional<Company> companyOptional = companyRepository.findByUrl(url);
+        if (companyOptional.isPresent()) {
+            Company oldCompany = companyOptional.get();
+            company = saveUserIfExist(oldCompany, company);
+        } else {
+        }
+        company.setUrl(url);
+        company = companyRepository.save(company);
         return CompletableFuture.completedFuture(company);
     }
 
@@ -75,12 +86,12 @@ public class CompanyServiceImpl implements CompanyService {
         List<Company> topByPrice = companyRepository.findTopByPrice();
         log.info("Tom companies by volume");
         for (Company c : topByVolume) {
-            log.info("   -" + c.getName() + c.getPreviousVolume());
+            log.info("   -" + c.getName() + " - " + c.getVolume());
         }
 
         log.info("Tom companies by price");
         for (Company c : topByPrice) {
-            log.info("   -" + c.getName() + " "+ c.getPrice());
+            log.info("   -" + c.getName() + " - " + c.getPrice());
         }
     }
 
@@ -95,4 +106,22 @@ public class CompanyServiceImpl implements CompanyService {
         }
         return urls;
     }
+
+    private Company saveUserIfExist(Company old, Company newCompany) {
+        CompanyLog log = new CompanyLog();
+        if (old.getPrice() != newCompany.getPrice()) {
+            log.setOldPrice(old.getPrice());
+            log.setNewPrice(newCompany.getPrice());
+            old.setPrice(newCompany.getPrice());
+        }
+        if (old.getVolume() != newCompany.getVolume()) {
+            log.setOldVolume(old.getVolume());
+            log.setNewVolume(newCompany.getVolume());
+            old.setVolume(newCompany.getVolume());
+        }
+        log.setCompany(old);
+        companyLogRepository.save(log);
+        return companyRepository.save(old);
+    }
+
 }

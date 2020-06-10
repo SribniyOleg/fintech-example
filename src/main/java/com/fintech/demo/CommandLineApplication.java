@@ -9,8 +9,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.BlockingDeque;
 
@@ -25,12 +23,15 @@ public class CommandLineApplication implements CommandLineRunner {
     @Override
     @Async
     public void run(String... args) throws Exception {
-        BlockingDeque<String> urls = companyService.saveCompanyUrls(companyService.getCompaniesData());
-        List<Company> topByVolume = companyRepository.findTopByVolume();
-            long start ;
-        while (urls.size() > 0) {
-            start = LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond();
-            companyService.getCompanyFromRequest(urls.take());
+        long times = Long.MAX_VALUE;
+        while (times > 0){
+            BlockingDeque<String> urls = companyService.saveCompanyUrls(companyService.getCompaniesData());
+            List<Company> topByVolume = companyRepository.findTopByVolume();
+            while (urls.size() > 0) {
+                Thread.currentThread().sleep(50);
+                companyService.saveCompany(urls.take());
+            }
+            times--;
         }
 
 
