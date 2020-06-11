@@ -52,8 +52,7 @@ public class CompanyServiceImpl implements CompanyService {
 
         List<CompanyDto> companies = objectMapper.readValue(
                 httpClient.send(request, HttpResponse.BodyHandlers.ofString()).body(),
-                new TypeReference<List<CompanyDto>>() {
-                });
+                new TypeReference<List<CompanyDto>>() {});
         companies = companies.stream().filter(c -> c.isState()).collect(Collectors.toList());
         return companies;
     }
@@ -100,6 +99,7 @@ public class CompanyServiceImpl implements CompanyService {
         getTopCompanies();
     }
 
+    @Override
     public BlockingDeque<String> saveCompanyUrls(List<CompanyDto> companies) {
         for (CompanyDto company : companies) {
             urls.add(String.format(COMPANY_INFO_URL, company.getSymbol()));
